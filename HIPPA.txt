@@ -1,0 +1,157 @@
+subject_id	
+hadm_id
+admittime
+dischtime	
+deathtime
+language
+religion	
+marital_status	
+ethnicity	
+edregtime	
+edouttime	
+mimic_id	
+brth_yr_nbr	
+client_id_synth	
+gender_cd	
+ethnity_1_desc	
+patient_id_synth	
+src_patient_id_synth
+pcp_provider_id_synth	
+race_desc	
+subject_id	
+hadm_id	
+icustay_id	
+intime
+outtime	
+mimic_id	
+der_yob	
+pat_id	
+patient_id_synth							
+ims_patient_id	
+gender	
+emr_client_key	
+client_zip3	
+race	
+patient_id_synth												
+ims_patient_id	
+gender	
+year_of_birth	
+emr_client_key													
+metastatic_date	
+race														
+patid	
+yrdob	
+death_dt														
+subject_id	
+gender	
+dob	
+dod	
+dod_hosp	dod_ssn	
+mimic_id											
+Financial Number	
+1 vaccine_date	
+2 vaccine_date	
+3 vaccine_date	
+4 vaccine_date	
+5 vaccine_date												
+Financial Number
+1 vaccine_date
+2 vaccine_date
+3 vaccine_date
+4 vaccine_date
+5 vaccine_date
+Prescreening - Fever date
+Prescreening - Chills date
+Prescreening - Rigors (Repeated shaking with chills) date
+Prescreening - Cough (New or worsening cough) date
+Prescreening - Dyspnea (Difficulty breathing) date
+Prescreening - Sore throat date
+Prescreening - Anosmia (New loss of smell) date
+Prescreening - New loss of taste date
+Prescreening - Myalgia (Muscle pain) date
+Prescreening - Diarrhea present date
+Prescreening - Headache date
+Prescreening - Family member travel history date
+Prescreening - Recent travel history (self) date
+Prescreening - Contact w/Confirmed/Possible COVID Pt date
+Prescreening - Method of arrival date
+Admit Date & Time
+Discharge Date & Time
+Person Address- Zip Code
+Birth Date
+Age
+Ethnic Group
+Ethnic Group.1
+Race
+Race.1
+Sex
+Emergency Start date
+Emergency Stop date
+Inpatient Start date
+Inpatient Stop date
+ICU Start date
+ICU Stop date
+code_status_last_date
+vasopressors_startdate
+vasopressors_stopdate
+anticoagulants_startdate
+anticoagulants_stopdate
+hydroxychloroquine_startdate
+hydroxychloroquine_stopdate
+remdesivir_startdate
+remdesivir_stopdate
+conv_plasma_startdate
+conv_plasma_stopdate
+Body Mass Index Date Time
+chest_ct_firstdate
+chest_xray_firstdate
+venous_doppler_firstdate
+arterial_doppler_firstdate
+ecg_firstdate
+echo_firstdate
+vent_documentation_firstdate
+vent_documentation_lastdate
+Mechanical vent first start time by FIN
+endotracheal_int_firstdate
+endotracheal_int_lastdate
+ecmo_firstdate
+ecmo_lastdate
+prone_position_firstdate
+prone_position_lastdate
+Non-Invasive Ventilation first date
+Non-Invasive Ventilation last date
+cpap_firstdate
+cpap_lastdate
+bipap_firstdate
+bipap_lastdate
+avaps_firstdate
+avaps_lastdate
+O2 Flow Rate First date
+O2 Flow Rate Maximum date
+O2 Flow Rate Minimum date
+Room air first date
+Room air last date
+High-flow nasal cannula- all first date
+High-flow nasal cannula- all last date
+High-flow nasal cannula first date
+High-flow nasal cannula last date
+Heated high flow cannula first date
+Heated high flow cannula last date
+Heated high flow trach first date
+Heated high flow trach last date
+Nasal cannula first date
+Nasal cannula last date
+Simple mask first date
+Simple mask last date
+Aerosol mask first date
+Aerosol mask last date
+Nonrebreather mask first date
+Nonrebreather mask last date
+Partial rebreather mask first date
+Partial rebreather mask last date
+Venti-mask first date
+Venti-mask last date
+Opti-flow first date
+Opti-flow last date
+Any mask first date
+Any mask last date
