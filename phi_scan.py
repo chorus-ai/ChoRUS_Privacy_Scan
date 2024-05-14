@@ -159,79 +159,9 @@ def create_training_data(json_data):
     return df_train_data_all
 
 
-# define 
-HIPPA = ["Financial Number",
-"1 MRNOrganization",
-"2 MRNOrganization",
-"3 MRNOrganization",
-"4 MRNOrganization",
-"Person Location- Facility (Admit)",
-"Admit Date & Time",
-"Discharge Date & Time",
-"Person Address- Zip Code",
-"Birth Date",
-# "Age",#   2023-2-27: change 'age' to non-PHI
-# "Ethnic Group",
-# "Ethnic Group.1",
-# "Race",
-# "Race.1",
-# "Sex",
-'subject_id',
-'admittime',
-'dischtime',
-'deathtime',
-# 'language',
-# 'religion',
-# 'marital_status',
-# 'ethnicity',
-'subject_id',
-# 'gender',
-'dod_hosp',
-'dod_ssn',
-'mimic_id',
-'subject_id',
-'hadm_id',
-'icustay_id'
-'intime',
-'outtime',
-'dob',
-'dod',
-'patid',
-#          'yrdob',
-#          'state',
-#          'race',
-#          'gdr_cd',
-         'death_dt',
-         'ims_patient_id',
-#          'gender',
-#          'year_of_birth',
-#          'patient_state_code',
-         'emr_client_key',
-#          'race',
-         'ims_patient_id',
-#          'year_of_birth',
-#          'gender',
-         'patient_state_code',
-         'emr_client_key',
-         'client_state_code',
-         'client_zip3',
-#          'race',
-         'patient_id_synth',
-# 'der_sex',
-#          'der_yob',
-         'pat_id',
-         'patient_id_synth',
-#          'pat_region',
-#          'pat_state'
-# 'brth_yr_nbr',
-         'client_id_synth',
-# 'gender_cd',
-#          'ethnity_1_desc',
-         'patient_id_synth',
-         'src_patient_id_synth',
-         'pcp_provider_id_synth',
-#          'race_desc'
-]
+with open('HIPPA.txt', 'r') as f:
+    HIPPA = f.readlines()
+HIPPA = [line.strip().replace('\t', '') for line in HIPPA]
 
 
 # %%
