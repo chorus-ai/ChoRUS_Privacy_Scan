@@ -213,7 +213,6 @@ fix_column_name = ['statistics.kurtosis', 'statistics.mean', 'statistics.histogr
        'statistics.precision.sample_size_01', 'statistics.precision.mean_01',
        'statistics.precision.std_01']
 
-
 # %%
 def main(model, df, df_json):
     X = create_training_data(df_json)
@@ -231,7 +230,7 @@ def main(model, df, df_json):
     # create HIPPA label
     X['HIPPA'] = 0
     X[X.index.isin(HIPPA)] = 1
-    
+    #
     # change object to float
     for i in X.columns:
         X[i] = pd.to_numeric(X[i],errors='coerce')
@@ -283,9 +282,74 @@ def main(model, df, df_json):
     df_pred_result['ML prediction result 0/1'] = predict_01
     
     df_pred_result = df_pred_result[['HIPPA', 'ML prediction result', 'ML prediction result 0/1']]
+
+    """ ========================= regular expression========================"""
+    import re
+    def re_find_count(text):
+        # text = "738-345-3453, 343-234-2342"
+        # pattern_number = r'\b(?:\d[-.()]*?){10}\b'
+        # result1 = re.findall(pattern_number, text)
+        # number1 = len(result1)
+        #
+        # # text = "43573, 23423,34234,"
+        # pattern_5digits = r'\b\d{5}\b'
+        # result2 = re.findall(pattern_5digits, text)
+        # number2 = len(result2)
+        #
+        # # text = '87878-3049, 34948'
+        # pattern_postal = r'\b(\d{5}(-\d{4})?)\b'
+        # result3 = re.findall(pattern_postal, text)
+        # number3 = len(result3)
+
+        #     text = "2021-01-07 18:45:00 , 2021-01-07 18:45:00 , 2021-01-07 18:45:00 , 2021-01-07 18:45:00"
+        pattern_date = r'\d{4}-\d{2}-\d{2}(?: \d{2}:\d{2}:\d{2})?'
+        result4 = re.findall(pattern_date, text)
+        number4 = len(result4)
+
+        # print(result1, result2, result3, result4)
+        # return np.max([number1, number2, number3, number4])
+        return number4
+
+
+    # sampe 5000 to form text
+    y_pred_RE = {}
+    for i, data in enumerate([df]):
+        print('Processing RE on ', i)
+        sample = np.max([5000, data.shape[0]])
+        data_5000 = data.iloc[:sample, :]
+
+        data_5000 = data_5000.replace('Unknown', np.nan)  # unknown -> nan
+        data_5000 = data_5000.replace('Other', np.nan)  # other -> nan
+
+        # nan to random choice
+        import random
+        for c in data_5000.columns:
+            l = list(set(data_5000[c][data_5000[c].notna()].tolist()))
+            if not l:
+                l = [0]
+            data_5000[c].fillna(random.choice(l), inplace=True)
+        print('this is the line')
+        for c in tqdm(data_5000.columns):
+            print('columns is: ', c)
+            text = c + ' , '
+            for r in data_5000[c].tolist():
+                text += str(r) + ' , '
+            print('test is:', text[:100])
+            count = re_find_count(text)
+            print('count is: ', count)
+            p = min(count / sample, 1)
+            y_pred_RE[c] = p
+
+    print('RE result: ', y_pred_RE)
+    for k,v in y_pred_RE.items():
+        if v > 0:
+            print(' k is:', k)
+            df_pred_result.loc[k, 'HIPPA'] = 1
+            df_pred_result.loc[k, 'ML prediction result'] = 1
+            df_pred_result.loc[k, 'ML prediction result 0/1'] = 1
     return df_pred_result
 
-# %%
+
 
 def phi_scan(original_data_path,json_file_path,model_path,output_path):
     
