@@ -226,8 +226,17 @@ def main(model, df, df_json):
         # print(result_ips)
         # print(number_ips)
 
+        
+        # text = 'Hello my name is Chandler Muriel Bing. I have a friend who is named Pieter van den Woude and he has another friend, A. A. Milne. Gandalf the Gray joins us. Together, we make up the Friends Cast and Crew.'
+        pattern_name = r'[A-Z]([a-z]+|\.)(?:\s+[A-Z]([a-z]+|\.))*(?:\s+[a-z][a-z\-]+){0,2}\s+[A-Z]([a-z]+|\.)'
+        result_name = re.findall(pattern_name, text)
+        number_name = len(result_name)
+        # print(result_name)
+        # print(number_name)
+
+
         # print(result1, result2, result3, result4)
-        return np.max([number_text, number_number, number_ID ,number_zip, number_date ,number_emails, number_urls, number_ips])
+        return np.max([number_text, number_number, number_ID ,number_zip, number_date ,number_emails, number_urls, number_ips, number_name])
         # return number4
 
 
