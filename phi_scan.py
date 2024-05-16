@@ -6,6 +6,8 @@
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
+import re
+
 # import matplotlib.pyplot as plt
 import json
 from xgboost import XGBClassifier
@@ -164,29 +166,69 @@ def main(model, df, df_json):
     """ ========================= regular expression========================"""
     import re
     def re_find_count(text):
-        # text = "738-345-3453, 343-234-2342"
-        # pattern_number = r'\b(?:\d[-.()]*?){10}\b'
-        # result1 = re.findall(pattern_number, text)
-        # number1 = len(result1)
-        #
-        # # text = "43573, 23423,34234,"
-        # pattern_5digits = r'\b\d{5}\b'
-        # result2 = re.findall(pattern_5digits, text)
-        # number2 = len(result2)
-        #
-        # # text = '87878-3049, 34948'
-        # pattern_postal = r'\b(\d{5}(-\d{4})?)\b'
-        # result3 = re.findall(pattern_postal, text)
-        # number3 = len(result3)
 
-        #     text = "2021-01-07 18:45:00 , 2021-01-07 18:45:00 , 2021-01-07 18:45:00 , 2021-01-07 18:45:00"
+        # phone, fax
+        # text = "738-345-3453, 343-234-2342, 3434543543"
+        pattern_number = r'\b(?:\d[-.()]*?){10}\b'
+        result_text = re.findall(pattern_number, text)
+        number_text = len(result_text)
+        # print(result1)
+
+        # text = "(123)456-7890, (345)678-9012"
+        pattern_number = r'\(\d{3}\)\d{3}-\d{4}'
+        result_number = re.findall(pattern_number, text)
+        number_number = len(result_number)
+        # print(result1)
+        # print(number1)
+
+        # ID
+        # text = "43573, 23423,34234, 1234567, 12345678, 123456789,"
+        pattern_7digits = r'\b\d{7,}\b'
+        result_ID = re.findall(pattern_7digits, text)
+        number_ID = len(result_ID)
+        # print(number3)
+
+        # zip
+        # text = '87878-3049, 34948'
+        pattern_postal = r'\b(\d{5}(-\d{4})?)\b'
+        result_zip = re.findall(pattern_postal, text)
+        number_zip = len(result_zip)
+        # print(result3)
+
+        # date
+        # text = "2021-01-07 18:45:00 , 2021-01-07 18:45:00 , 2021-01-07 18:45:00 , 2021-01-07 18:45:00"
         pattern_date = r'\d{4}-\d{2}-\d{2}(?: \d{2}:\d{2}:\d{2})?'
-        result4 = re.findall(pattern_date, text)
-        number4 = len(result4)
+        result_date= re.findall(pattern_date, text)
+        number_date = len(result_date)
+        # print(result4)
+
+        # email
+        # text = "john.doe@example.com, jane_doe123@gmail.com, info@company.co.uk"
+        pattern_email = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+        result_emails = re.findall(pattern_email, text)
+        number_emails = len(result_emails)
+        # print(result_emails)
+        # print(number_emails)
+
+        # utl
+        # text = "Visit us at http://www.example.com, check out https://example.org, or go to www.example.net"
+        pattern_url = r'\b(?:https?://)?(?:www\.)?[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}(?:\.[A-Za-z]{2,})?\b'
+        result_urls = re.findall(pattern_url, text)
+        number_urls = len(result_urls)
+        # print(result_urls)
+        # print(number_urls)
+
+        # IP
+        # text = "Connect to 192.168.1.1, ping 10.0.0.1, or visit http://[2001:db8::1] for IPv6."
+        pattern_ip = r'\b(?:\d{1,3}\.){3}\d{1,3}\b|\b(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}\b'
+        result_ips = re.findall(pattern_ip, text)
+        number_ips = len(result_ips)
+        # print(result_ips)
+        # print(number_ips)
 
         # print(result1, result2, result3, result4)
-        # return np.max([number1, number2, number3, number4])
-        return number4
+        return np.max([number_text, number_number, number_ID ,number_zip, number_date ,number_emails, number_urls, number_ips])
+        # return number4
 
 
     # sampe 5000 to form text
