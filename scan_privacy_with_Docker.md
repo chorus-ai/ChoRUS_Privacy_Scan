@@ -39,7 +39,7 @@ The `config.json` file contains various settings for the Privacy Scan Tool. Belo
         "LOCAL_TEXT_FILES": "LOCAL_TEXT_FILES"
     },
     "text_file_location": "./data_folder", 
-    "output_folder": "./output_folder",
+    "output_folder": "./output",
     "result_file": "phi_scan_results.xls",
 
     "selected_db": "PSQL_MIMIC",
@@ -76,7 +76,7 @@ If you want to use local text files, modify the `config.json` as follows:
         "LOCAL_TEXT_FILES": "LOCAL_TEXT_FILES"
     },
     "text_file_location": "./data_folder", 
-    "output_folder": "./output_folder",
+    "output_folder": "./output",
     "result_file": "phi_scan_results.xls",
 
     "selected_db": "LOCAL_TEXT_FILES",
@@ -98,7 +98,7 @@ If you want to use a PostgreSQL database, ensure the `config.json` is set as fol
         "LOCAL_TEXT_FILES": "LOCAL_TEXT_FILES"
     },
     "text_file_location": "./data_folder", 
-    "output_folder": "./output_folder",
+    "output_folder": "./output",
     "result_file": "phi_scan_results.xls",
 
     "selected_db": "PSQL_MIMIC",
