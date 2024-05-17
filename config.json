@@ -1,0 +1,15 @@
+{
+    "available_dbs": {
+        "PSQL_MIMIC": ["postgresql://username:password@192.168.0.100:5432/mimic", "omop"],
+        "LOCAL_TEXT_FILES": "LOCAL_TEXT_FILES"
+    },
+    "text_file_location": "./data_folder", 
+    "output_folder": "./output",
+    "result_file": "phi_scan_results.xls",
+
+    "selected_db": "LOCAL_TEXT_FILES",
+    "tables_to_scan" : ["noshow.csv"],
+
+    "data_profile_sample_size": 1000,
+    "PHI_SCAN_MODEL": "./phi_scan/XGBClassifier(V220240514).json"
+}

@@ -10,7 +10,9 @@ from config import *
 def read_source_data(db_name,sql_text):
     #print(sql_text)
     db_eng = create_engine(available_dbs[db_name][0]) 
-    sql_df = pd.read_sql( sql_text,con=db_eng)
+    connection = db_eng.raw_connection()
+    sql_df = pd.read_sql(sql_text ,con=connection)
+    connection.close()
     #print(sql_df.shape)
     return(sql_df)
 
@@ -20,7 +22,9 @@ def read_target(target_db,table):
     sql_text = """
     SELECT * from {}.{};
     """.format(target_dbs[target_db][1],table)    
-    sql_df = pd.read_sql(sql_text ,con=db_eng)
+    connection = db_eng.raw_connection()
+    sql_df = pd.read_sql(sql_text ,con=connection)
+    connection.close()
     #print(sql_df.shape)
     return(sql_df)
 
@@ -28,7 +32,9 @@ def read_target(target_db,table):
 def write_target(sql_df,target_db,table):
     #print(sql_text)
     db_eng = create_engine(target_dbs[target_db][0]) 
-    sql_df.head(1000).to_sql( table,db_eng,schema= target_dbs[target_db][1], if_exists = 'replace', index=False,chunksize = 100000)
+    connection = db_eng.raw_connection()
+    sql_df.head(1000).to_sql( table,connection,schema= target_dbs[target_db][1], if_exists = 'replace', index=False,chunksize = 100000)
+    connection.close()
     #print(sql_df.shape)
 
 
@@ -63,11 +69,11 @@ def get_tables (db_name, text_file_location=None):
         FROM information_schema.tables
         WHERE table_schema = '{}';
         """.format(schema)
-
-        sql_df = pd.read_sql( sql_text,con=db_eng
-        )
+        connection = db_eng.raw_connection()
+        sql_df = pd.read_sql( sql_text,con=connection)
         print(sql_df.shape)
         tables = sql_df.table_name.to_list()
+        connection.close()  
     else:    
         if os.path.exists(text_file_location) :
             old_path = os.getcwd()
@@ -107,11 +113,11 @@ def get_table_cols (db_name,table_name):
     WHERE table_schema = '{}' and table_name = '{}';
     """.format(schema,table_name)
 
-    sql_df = pd.read_sql( sql_text,con=db_eng
-    )
+    connection = db_eng.raw_connection()  
+    sql_df = pd.read_sql( sql_text,con=connection)
     print(sql_df.shape)
     columns = sql_df.column_name.to_list()
-
+    connection.close()
     return  columns
 
 def get_table_profile (db_name,table_name,samplesize,text_folder=None):
@@ -130,12 +136,12 @@ def get_table_profile (db_name,table_name,samplesize,text_folder=None):
     if not "TEXT" in db_name:
     
         db_eng = create_engine(available_dbs[db_name][0]) 
-        
+        connection = db_eng.raw_connection()
         profile_df = pd.read_sql(
             "select * from {}.{} order by random() limit {}".format(available_dbs[db_name][1],table_name,samplesize),
-            con=db_eng
+            con=connection
         )
-
+        connection.close()
     else:
         profile_df=pd.read_csv(os.path.join(text_folder,table_name))
         profile_df=profile_df.sample(n=samplesize,replace=True)

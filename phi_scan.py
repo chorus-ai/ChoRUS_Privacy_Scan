@@ -6,6 +6,8 @@
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
+import re
+
 # import matplotlib.pyplot as plt
 import json
 from xgboost import XGBClassifier
@@ -31,71 +33,18 @@ from pandas.api.types import is_numeric_dtype
 from sklearn.metrics import roc_curve, confusion_matrix , auc, precision_recall_curve, average_precision_score
 from sklearn import metrics
 
-def print_metrics(y_true, y_pred): # threshold must be pre-determined by the training program, otherwise, this test data may contain all y=1 or all y=0, and the threshold will be different from the training program
-    
-    false_positive_rate, recall, thresholds = roc_curve(y_true, y_pred)
-    roc_auc = auc(false_positive_rate, recall)
-    auprc = average_precision_score(y_true, y_pred)
-    print('AUC: ',roc_auc, "AUPRC: ", auprc)
-
-
-    '''fpr, tpr, thresholds = metrics.roc_curve(y_true, y_pred)
-
-    # calculate the g-mean for each threshold
-    gmeans = np.sqrt(tpr * (1-fpr))
-    ix = np.argmax(gmeans)
-    print('Best Threshold=%f, G-Mean=%.3f' % (thresholds[ix], gmeans[ix]))'''
-
-
-#     tn, fp, fn, tp = confusion_matrix(y_true, y_pred > thresholds[ix]).ravel()
-#     print('TN: ', tn, ", FP: ",fp, ", FN:", fn, ", TP:", tp)
-#     print("==> Sensitivity (Recall, TPR): %.3f"%(tp/(tp+fn)))
-#     print("==> Specifity: %.3f"%(tn/(tn+fp)))
-#     print("==> Positive Predictive Value (PPV) (Precision): %.3f"%(tp / (tp + fp)))
-#     print("==> Negative Predictive Value (NPV): %.3f"%(tn / (tn + fn)))
-#     print("==> Accuracy: %.3f"%((tp+tn)/(tn+ fp+ fn+tp)))
-#     print("==> F1 score: %.3f"%((2*tp)/(2*tp + fp + fn)))
-
-#     ns_probs = [0 for _ in range(len(y_true))]
-    
-#     # calculate roc curves
-#     ns_fpr, ns_tpr, _ = roc_curve(y_true, ns_probs)
-#     lr_fpr, lr_tpr, _ = roc_curve(y_true, y_pred)
-#     # plot the roc curve for the model
-#     plt.plot(ns_fpr, ns_tpr, linestyle='--', label='No Skill, AUC = %0.2f' % 0.5)
-#     plt.plot(lr_fpr, lr_tpr, marker='.', label = 'Our model: AUC = %0.2f' % roc_auc)
-#     # axis labels
-#     plt.xlabel('False Positive Rate')
-#     plt.ylabel('True Positive Rate')
-#     # show the legend
-#     plt.legend()
-#     # show the plot
-#     plt.show()
-    
-#     lr_precision, lr_recall, _ = precision_recall_curve(y_true, y_pred)
-#     lr_auc = auc(lr_recall, lr_precision)
-#     # summarize scores
-# #     print('Logistic: f1=%.3f auc=%.3f' % (lr_f1, lr_auc))
-#     # plot the precision-recall curves
-#     y_true = np.array(y_true)
-#     no_skill = len(y_true[y_true==1]) / len(y_true)
-#     plt.plot([0, 1], [no_skill, no_skill], linestyle='--', label='No skill, AUPRC = %0.2f' % no_skill)
-#     plt.plot(lr_recall, lr_precision, marker='.',label = 'Our model: AUPRC = %0.2f' % auprc)
-#     # axis labels
-#     plt.xlabel('Recall')
-#     plt.ylabel('Precision')
-#     # show the legend
-#     plt.legend(loc = 'upper right')
-#     # show the plot
-#     plt.show()
-
-    '''y_pred_01 = y_pred.apply(lambda x: int(x >= thresholds[ix]))'''
-    
-    print("threshold: 0.966910")
-    y_pred_01 = y_pred.apply(lambda x: int(x >= 0.966910))
-    
-
-    return y_pred_01
+# def print_metrics(y_true, y_pred): # threshold must be pre-determined by the training program, otherwise, this test data may contain all y=1 or all y=0, and the threshold will be different from the training program
+#
+#     # false_positive_rate, recall, thresholds = roc_curve(y_true, y_pred)
+#     # roc_auc = auc(false_positive_rate, recall)
+#     # auprc = average_precision_score(y_true, y_pred)
+#     # print('AUC: ',roc_auc, "AUPRC: ", auprc)
+#
+#     print("threshold: 0.994889")
+#     y_pred_01 = y_pred.apply(lambda x: int(x >= 0.994889))
+#
+#
+#     return y_pred_01
 
 
 # %%
@@ -159,137 +108,21 @@ def create_training_data(json_data):
     return df_train_data_all
 
 
-# define 
-HIPPA = ["Financial Number",
-"1 MRNOrganization",
-"2 MRNOrganization",
-"3 MRNOrganization",
-"4 MRNOrganization",
-"Person Location- Facility (Admit)",
-"Admit Date & Time",
-"Discharge Date & Time",
-"Person Address- Zip Code",
-"Birth Date",
-# "Age",#   2023-2-27: change 'age' to non-PHI
-# "Ethnic Group",
-# "Ethnic Group.1",
-# "Race",
-# "Race.1",
-# "Sex",
-'subject_id',
-'admittime',
-'dischtime',
-'deathtime',
-# 'language',
-# 'religion',
-# 'marital_status',
-# 'ethnicity',
-'subject_id',
-# 'gender',
-'dod_hosp',
-'dod_ssn',
-'mimic_id',
-'subject_id',
-'hadm_id',
-'icustay_id'
-'intime',
-'outtime',
-'dob',
-'dod',
-'patid',
-#          'yrdob',
-#          'state',
-#          'race',
-#          'gdr_cd',
-         'death_dt',
-         'ims_patient_id',
-#          'gender',
-#          'year_of_birth',
-#          'patient_state_code',
-         'emr_client_key',
-#          'race',
-         'ims_patient_id',
-#          'year_of_birth',
-#          'gender',
-         'patient_state_code',
-         'emr_client_key',
-         'client_state_code',
-         'client_zip3',
-#          'race',
-         'patient_id_synth',
-# 'der_sex',
-#          'der_yob',
-         'pat_id',
-         'patient_id_synth',
-#          'pat_region',
-#          'pat_state'
-# 'brth_yr_nbr',
-         'client_id_synth',
-# 'gender_cd',
-#          'ethnity_1_desc',
-         'patient_id_synth',
-         'src_patient_id_synth',
-         'pcp_provider_id_synth',
-#          'race_desc'
-]
+# with open('HIPPA.txt', 'r') as f:
+#     HIPPA = f.readlines()
+# HIPPA = [line.strip().replace('\t', '') for line in HIPPA]
+
+# fix_column_name =  ['statistics.quantiles.0', 'statistics.median_abs_deviation', 'statistics.mean', 'statistics.min', 'statistics.unalikeability', 'statistics.histogram', 'statistics.times.sum', 'statistics.median', 'statistics.num_negatives', 'statistics.times.min', 'statistics.data_type_representation.float', 'statistics.max', 'statistics.sum', 'statistics.unique_ratio', 'statistics.null_count', 'statistics.num_zeros', 'statistics.data_type_representation.datetime', 'statistics.data_type_representation.int', 'data_type', 'statistics.variance', 'statistics.times.datetime', 'statistics.times.skewness', 'statistics.sample_size', 'statistics.quantiles.1', 'statistics.times.kurtosis', 'statistics.quantiles.2', 'statistics.kurtosis', 'statistics.times.histogram_and_quantiles', 'statistics.stddev', 'statistics.gini_impurity', 'statistics.skewness', 'statistics.times.num_negatives', 'statistics.unique_count', 'statistics.times.num_zeros', 'statistics.times.max', 'statistics.times.variance', 'statistics.quantiles.0_01', 'statistics.median_abs_deviation_01', 'statistics.mean_01', 'statistics.min_01', 'statistics.unalikeability_01', 'statistics.histogram_01', 'statistics.times.sum_01', 'statistics.median_01', 'statistics.num_negatives_01', 'statistics.times.min_01', 'statistics.data_type_representation.float_01', 'statistics.max_01', 'statistics.sum_01', 'statistics.unique_ratio_01', 'statistics.null_count_01', 'statistics.num_zeros_01', 'statistics.data_type_representation.datetime_01', 'statistics.data_type_representation.int_01', 'data_type_01', 'statistics.variance_01', 'statistics.times.datetime_01', 'statistics.times.skewness_01', 'statistics.sample_size_01', 'statistics.quantiles.1_01', 'statistics.times.kurtosis_01', 'statistics.quantiles.2_01', 'statistics.kurtosis_01', 'statistics.times.histogram_and_quantiles_01', 'statistics.stddev_01', 'statistics.gini_impurity_01', 'statistics.skewness_01', 'statistics.times.num_negatives_01', 'statistics.unique_count_01', 'statistics.times.num_zeros_01', 'statistics.times.max_01', 'statistics.times.variance_01', 'statistics.precision.margin_of_error', 'statistics.precision.confidence_level', 'statistics.precision.var', 'statistics.precision.mean', 'statistics.precision.max', 'statistics.times.precision', 'statistics.precision.sample_size', 'statistics.precision.min', 'statistics.precision.std', 'statistics.precision.margin_of_error_01', 'statistics.precision.confidence_level_01', 'statistics.precision.var_01', 'statistics.precision.mean_01', 'statistics.precision.max_01', 'statistics.times.precision_01', 'statistics.precision.sample_size_01', 'statistics.precision.min_01', 'statistics.precision.std_01'] ['statistics.quantiles.2', 'statistics.histogram', 'statistics.data_type_representation.float', 'statistics.times.min', 'statistics.times.sum', 'statistics.sample_size', 'statistics.median_abs_deviation', 'statistics.null_count', 'statistics.sum', 'statistics.median', 'statistics.data_type_representation.int', 'statistics.num_negatives', 'data_type', 'statistics.max', 'statistics.times.kurtosis', 'statistics.times.skewness', 'statistics.min', 'statistics.gini_impurity', 'statistics.times.num_zeros', 'statistics.mean', 'statistics.unalikeability', 'statistics.quantiles.1', 'statistics.num_zeros', 'statistics.quantiles.0', 'statistics.data_type_representation.datetime', 'statistics.unique_ratio', 'statistics.skewness', 'statistics.kurtosis', 'statistics.times.datetime', 'statistics.times.variance', 'statistics.times.num_negatives', 'statistics.times.max', 'statistics.variance', 'statistics.unique_count', 'statistics.stddev', 'statistics.times.histogram_and_quantiles', 'statistics.quantiles.2_01', 'statistics.histogram_01', 'statistics.data_type_representation.float_01', 'statistics.times.min_01', 'statistics.times.sum_01', 'statistics.sample_size_01', 'statistics.median_abs_deviation_01', 'statistics.null_count_01', 'statistics.sum_01', 'statistics.median_01', 'statistics.data_type_representation.int_01', 'statistics.num_negatives_01', 'data_type_01', 'statistics.max_01', 'statistics.times.kurtosis_01', 'statistics.times.skewness_01', 'statistics.min_01', 'statistics.gini_impurity_01', 'statistics.times.num_zeros_01', 'statistics.mean_01', 'statistics.unalikeability_01', 'statistics.quantiles.1_01', 'statistics.num_zeros_01', 'statistics.quantiles.0_01', 'statistics.data_type_representation.datetime_01', 'statistics.unique_ratio_01', 'statistics.skewness_01', 'statistics.kurtosis_01', 'statistics.times.datetime_01', 'statistics.times.variance_01', 'statistics.times.num_negatives_01', 'statistics.times.max_01', 'statistics.variance_01', 'statistics.unique_count_01', 'statistics.stddev_01', 'statistics.times.histogram_and_quantiles_01', 'statistics.precision.sample_size', 'statistics.precision.min', 'statistics.precision.margin_of_error', 'statistics.times.precision', 'statistics.precision.std', 'statistics.precision.max', 'statistics.precision.mean', 'statistics.precision.var', 'statistics.precision.confidence_level', 'statistics.precision.sample_size_01', 'statistics.precision.min_01', 'statistics.precision.margin_of_error_01', 'statistics.times.precision_01', 'statistics.precision.std_01', 'statistics.precision.max_01', 'statistics.precision.mean_01', 'statistics.precision.var_01', 'statistics.precision.confidence_level_01']
 
 
-# %%
-fix_column_name = ['statistics.kurtosis', 'statistics.mean', 'statistics.histogram',
-       'statistics.times.sum', 'statistics.null_count',
-       'statistics.unique_count', 'statistics.data_type_representation.int',
-       'statistics.quantiles.0', 'statistics.stddev', 'statistics.sample_size',
-       'statistics.median_abs_deviation', 'statistics.times.kurtosis',
-       'statistics.data_type_representation.float', 'statistics.unique_ratio',
-       'statistics.sum', 'statistics.num_zeros', 'statistics.gini_impurity',
-       'statistics.times.min', 'data_type', 'statistics.skewness',
-       'statistics.times.variance', 'statistics.times.datetime',
-       'statistics.quantiles.2', 'statistics.times.histogram_and_quantiles',
-       'statistics.variance', 'statistics.quantiles.1',
-       'statistics.times.num_zeros', 'statistics.unalikeability',
-       'statistics.times.num_negatives',
-       'statistics.data_type_representation.datetime', 'statistics.median',
-       'statistics.min', 'statistics.num_negatives', 'statistics.max',
-       'statistics.times.skewness', 'statistics.times.max',
-       'statistics.kurtosis_01', 'statistics.mean_01',
-       'statistics.histogram_01', 'statistics.times.sum_01',
-       'statistics.null_count_01', 'statistics.unique_count_01',
-       'statistics.data_type_representation.int_01',
-       'statistics.quantiles.0_01', 'statistics.stddev_01',
-       'statistics.sample_size_01', 'statistics.median_abs_deviation_01',
-       'statistics.times.kurtosis_01',
-       'statistics.data_type_representation.float_01',
-       'statistics.unique_ratio_01', 'statistics.sum_01',
-       'statistics.num_zeros_01', 'statistics.gini_impurity_01',
-       'statistics.times.min_01', 'data_type_01', 'statistics.skewness_01',
-       'statistics.times.variance_01', 'statistics.times.datetime_01',
-       'statistics.quantiles.2_01',
-       'statistics.times.histogram_and_quantiles_01', 'statistics.variance_01',
-       'statistics.quantiles.1_01', 'statistics.times.num_zeros_01',
-       'statistics.unalikeability_01', 'statistics.times.num_negatives_01',
-       'statistics.data_type_representation.datetime_01',
-       'statistics.median_01', 'statistics.min_01',
-       'statistics.num_negatives_01', 'statistics.max_01',
-       'statistics.times.skewness_01', 'statistics.times.max_01',
-       'statistics.precision.var', 'statistics.precision.max',
-       'statistics.times.precision', 'statistics.precision.confidence_level',
-       'statistics.precision.min', 'statistics.precision.margin_of_error',
-       'statistics.precision.sample_size', 'statistics.precision.mean',
-       'statistics.precision.std', 'statistics.precision.var_01',
-       'statistics.precision.max_01', 'statistics.times.precision_01',
-       'statistics.precision.confidence_level_01',
-       'statistics.precision.min_01',
-       'statistics.precision.margin_of_error_01',
-       'statistics.precision.sample_size_01', 'statistics.precision.mean_01',
-       'statistics.precision.std_01']
-
-
-# %%
 def main(model, df, df_json):
     X = create_training_data(df_json)
     
     ## Columns name needs to be fixed
     # add these fix_column_name
+
+    fix_column_name = model.get_booster().feature_names
+
     X = pd.concat([pd.DataFrame(columns = fix_column_name), X]) 
     
     # X_join could possibily contain unseen columns -> delete
@@ -299,9 +132,9 @@ def main(model, df, df_json):
 
 
     # create HIPPA label
-    X['HIPPA'] = 0
-    X[X.index.isin(HIPPA)] = 1
-    
+    # X['HIPPA'] = 0
+    # X[X.index.isin(HIPPA)] = 1
+    #
     # change object to float
     for i in X.columns:
         X[i] = pd.to_numeric(X[i],errors='coerce')
@@ -313,47 +146,291 @@ def main(model, df, df_json):
     data_1_5000 = data_1_5000.replace('Unknown', np.nan) # unknown -> nan
     data_1_5000 = data_1_5000.replace('Other', np.nan)  # other -> nan
 
-#     # nan to random choice
-#     import random 
-#     for c in data_1_5000.columns:
-#         l = list(set(data_1_5000[c][data_1_5000[c].notna()].tolist()))
-#     #     print(l)
-#         if not l:
-#             l = [0]
-#         data_1_5000[c].fillna(random.choice(l), inplace=True)
-
-#     y_pred_2 = {}
-
-#     whitelist_file = 'whitelist.pkl'
-
-#     start_time_all = time.time()
-#     with open(whitelist_file, "rb") as fin:
-#         whitelist = pickle.load(fin)
-
-#     for c in data_1_5000.columns:
-#         print(c)
-#         text = c + ' , '
-#         for r in data_1_5000[c].tolist()[:100]:
-#             text += str(r) + ' , '
-#         try:
-#             p = filter_task(text, whitelist)
-#         except: 
-#             print(c, ' is not english')
-#             p = 0
-#         print("{:.2f}%".format(p*100))
-#         y_pred_2[c] = p
-
     print(X.shape)
-    df_pred_result = pd.DataFrame({'ML prediction result': model.predict_proba(X.drop(columns=['HIPPA']))[:, 1]}).set_index([X.index])
+
+    feature_names = model.get_booster().feature_names
+    # print(set(fix_column_name) - set(feature_names))
+    # print(set(feature_names) - set(fix_column_name) )
+    # input()
+
+    # df_pred_result = pd.DataFrame({'ML prediction result': model.predict_proba(X.drop(columns=['HIPPA']))[:, 1]}).set_index([X.index])
+    df_pred_result = pd.DataFrame(
+        {'ML prediction result': model.predict_proba(X)[:, 1]}).set_index([X.index])
 #     df_pred_result['REgular expression result'] = pd.DataFrame.from_dict(y_pred_2, orient='index').set_index([X.index])
-    df_pred_result = df_pred_result.join(X[['HIPPA']])
+#     df_pred_result = df_pred_result.join(X[['HIPPA']])
 
-    predict_01 = print_metrics(df_pred_result['HIPPA'], df_pred_result['ML prediction result'])
+    # predict_01 = print_metrics(df_pred_result['HIPPA'], df_pred_result['ML prediction result'])
 
-    df_pred_result['ML prediction result 0/1'] = predict_01
+    df_pred_result['ML prediction result 0/1'] = df_pred_result['ML prediction result'].apply(lambda x: int(x >= 0.994889))
+
+    # df_pred_result['ML prediction result 0/1'] = predict_01
     
-    df_pred_result = df_pred_result[['HIPPA', 'ML prediction result', 'ML prediction result 0/1']]
+    # df_pred_result = df_pred_result[['HIPPA', 'ML prediction result', 'ML prediction result 0/1']]
+    df_pred_result = df_pred_result[['ML prediction result', 'ML prediction result 0/1']]
+
+    """ ========================= regular expression========================"""
+    import re
+    def re_find_count(text):
+
+        # phone, fax
+        # text = "738-345-3453, 343-234-2342, 3434543543"
+        pattern_number = r'\b(?:\d[-.()]*?){10}\b'
+        result_text = re.findall(pattern_number, text)
+        number_text = len(result_text)
+        # print(result1)
+
+        # text = "(123)456-7890, (345)678-9012"
+        pattern_number = r'\(\d{3}\)\d{3}-\d{4}'
+        result_number = re.findall(pattern_number, text)
+        number_number = len(result_number)
+        # print(result1)
+        # print(number1)
+
+        # ID
+        # text = "43573, 23423,34234, 1234567, 12345678, 123456789,"
+        pattern_7digits = r'\b\d{7,}\b'
+        result_ID = re.findall(pattern_7digits, text)
+        number_ID = len(result_ID)
+        # print(number3)
+
+        # zip
+        # text = '87878-3049, 34948'
+        pattern_postal = r'\b(\d{5}(-\d{4})?)\b'
+        result_zip = re.findall(pattern_postal, text)
+        number_zip = len(result_zip)
+        # print(result3)
+
+        # date
+        # text = "2021-01-07 18:45:00 , 2021-01-07 18:45:00 , 2021-01-07 18:45:00 , 2021-01-07 18:45:00"
+        pattern_date = r'\d{4}-\d{2}-\d{2}(?: \d{2}:\d{2}:\d{2})?'
+        result_date= re.findall(pattern_date, text)
+        number_date = len(result_date)
+        # print(result4)
+
+        # email
+        # text = "john.doe@example.com, jane_doe123@gmail.com, info@company.co.uk"
+        pattern_email = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+        result_emails = re.findall(pattern_email, text)
+        number_emails = len(result_emails)
+        # print(result_emails)
+        # print(number_emails)
+
+        # utl
+        # text = "Visit us at http://www.example.com, check out https://example.org, or go to www.example.net"
+        pattern_url = r'\b(?:https?://)?(?:www\.)?[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}(?:\.[A-Za-z]{2,})?\b'
+        result_urls = re.findall(pattern_url, text)
+        number_urls = len(result_urls)
+        # print(result_urls)
+        # print(number_urls)
+
+        # IP
+        # text = "Connect to 192.168.1.1, ping 10.0.0.1, or visit http://[2001:db8::1] for IPv6."
+        pattern_ip = r'\b(?:\d{1,3}\.){3}\d{1,3}\b|\b(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}\b'
+        result_ips = re.findall(pattern_ip, text)
+        number_ips = len(result_ips)
+        # print(result_ips)
+        # print(number_ips)
+
+        
+        # text = 'Hello my name is Chandler Muriel Bing. I have a friend who is named Pieter van den Woude and he has another friend, A. A. Milne. Gandalf the Gray joins us. Together, we make up the Friends Cast and Crew.'
+        pattern_name = r'[A-Z]([a-z]+|\.)(?:\s+[A-Z]([a-z]+|\.))*(?:\s+[a-z][a-z\-]+){0,2}\s+[A-Z]([a-z]+|\.)'
+        result_name = re.findall(pattern_name, text)
+        number_name = len(result_name)
+        # print(result_name)
+        # print(number_name)
+
+
+        # date -2:
+        month_name = r"(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)"
+        pattern_date = re.compile(r"""
+        \b(
+            # YYYY-MM-DD or YYYY/MM/DD or YYYY.MM.DD
+            \d{4}[-/.](0?[1-9]|1[0-2]|""" + month_name + r""")[-/.]([1-2][0-9]|3[0-1]|0?[1-9])
+            |
+            # DD-MM-YYYY or DD/MM/YYYY or DD.MM.YYYY
+            ([1-2][0-9]|3[0-1]|0?[1-9])[-/.](0?[1-9]|1[0-2]|""" + month_name + r""")[-/.]\d{4}
+            |
+            # MM-DD-YYYY or MM/DD/YYYY or MM.DD.YYYY
+            (0?[1-9]|1[0-2]|""" + month_name + r""")[-/.]([1-2][0-9]|3[0-1]|0?[1-9])[-/.]\d{4}
+            |
+            # YYYY-MM or YYYY/MM or YYYY.MM
+            \d{4}[-/.](0?[1-9]|1[0-2]|""" + month_name + r""")
+            |
+            # MM-YYYY or MM/YYYY or MM.YYYY
+            (0?[1-9]|1[0-2]|""" + month_name + r""")[-/.]\d{4}
+            |
+            # MM-DD-YY or MM/DD/YY or MM.DD.YY
+            (0?[1-9]|1[0-2]|""" + month_name + r""")[-/.]([1-2][0-9]|3[0-1]|0?[1-9])[-/.]\d{2}
+            |
+            # DD-MM-YY or DD/MM/YY or DD.MM.YY
+            ([1-2][0-9]|3[0-1]|0?[1-9])[-/.](0?[1-9]|1[0-2]|""" + month_name + r""")[-/.]\d{2}
+            |
+            # MM-YY or MM/YY or MM.YY
+            (0?[1-9]|1[0-2]|""" + month_name + r""")[-/.]\d{2}
+            |
+            # Month DD, YYYY
+            """ + month_name + r"""\s+([1-2][0-9]|3[0-1]|0?[1-9]),\s+\d{4}
+            |
+            # Month DD, YY
+            """ + month_name + r"""\s+([1-2][0-9]|3[0-1]|0?[1-9]),\s+\d{2}
+            |
+            # DD Month YYYY
+            ([1-2][0-9]|3[0-1]|0?[1-9])\s+""" + month_name + r"""\s+\d{4}
+            |
+            # DD Month YY
+            ([1-2][0-9]|3[0-1]|0?[1-9])\s+""" + month_name + r"""\s+\d{2}
+        )\b
+        """, re.X | re.I)
+
+        result_date = re.findall(pattern_date, text)
+        number_date2 = len(result_date)
+
+        # date 3
+        pattern_date = r'(?:\/|:)'
+        result_date = re.findall(pattern_date, text)
+        number_date3 = len(result_date)
+
+        # date 4
+        # List of full and shortened month names
+        months = [
+            "january", "jan", "february", "feb", "march", "mar", "april", "apr",
+            "may", "june", "jun", "july", "jul", "august", "aug", "september", "sep",
+            "october", "oct", "november", "nov", "december", "dec"
+        ]
+
+        # Create a regular expression pattern for months
+        months_pattern = r'\b(' + '|'.join(months) + r')\b'
+
+        # Create a regular expression pattern for "AM", "PM", "am", "pm"
+        time_pattern = r'\b(AM|PM|am|pm)\b'
+
+        # Compile the patterns for efficiency
+        months_regex = re.compile(months_pattern, re.IGNORECASE)
+        time_regex = re.compile(time_pattern, re.IGNORECASE)
+
+        def count_occurrences(s):
+            # Find all occurrences of months and time indicators
+            months_matches = months_regex.findall(s)
+            time_matches = time_regex.findall(s)
+
+            # Count the occurrences
+            months_count = len(months_matches)
+            time_count = len(time_matches)
+
+            # Print the results
+            # if months_count > 0:
+            #     print(f"The string contains {months_count} month(s): {', '.join(months_matches)}")
+            # else:
+            #     print("The string contains no months.")
+            #
+            # if time_count > 0:
+            #     print(f"The string contains {time_count} time indicator(s): {', '.join(time_matches)}")
+            # else:
+            #     print("The string contains no time indicators.")
+            #
+            # if months_count == 0 and time_count == 0:
+            #     print("The string contains neither a month nor a time indicator.")
+            return months_count, time_count
+
+        number_date4, number_date5 = count_occurrences(text)
+
+
+        # name
+        # print(result1, result2, result3, result4)
+        return np.max([number_text, number_number, number_ID ,number_zip, number_date ,number_emails, number_urls, number_ips, number_name,
+                       number_date2, number_date3, number_date4, number_date5 ])
+        # return number4
+
+
+    # sampe 5000 to form text
+    y_pred_RE = {}
+    for i, data in enumerate([df]):
+        print('Processing RE on ', i)
+        sample = np.max([5000, data.shape[0]])
+        data_5000 = data.iloc[:sample, :]
+
+        data_5000 = data_5000.replace('Unknown', np.nan)  # unknown -> nan
+        data_5000 = data_5000.replace('Other', np.nan)  # other -> nan
+
+        # nan to random choice
+        import random
+        for c in data_5000.columns:
+            l = list(set(data_5000[c][data_5000[c].notna()].tolist()))
+            if not l:
+                l = [0]
+            data_5000[c].fillna(random.choice(l), inplace=True)
+        print('this is the line')
+        for c in tqdm(data_5000.columns):
+            print('columns is: ', c)
+            text = c + ' , '
+            for r in data_5000[c].tolist():
+                text += str(r) + ' , '
+            print('test is:', text[:100])
+            count = re_find_count(text)
+            print('count is: ', count)
+            p = min(count / sample, 1)
+            y_pred_RE[c] = p
+
+    print('RE result: ', y_pred_RE)
+    for k,v in y_pred_RE.items():
+        if v > 0:
+            print(' k is:', k)
+            # df_pred_result.loc[k, 'HIPPA'] = 1
+            df_pred_result.loc[k, 'ML prediction result'] = 1
+            df_pred_result.loc[k, 'ML prediction result 0/1'] = 1
+    """
+    detect features names
+    """
+    # strings_to_flag = ['date', 'time', 'name', 'id', 'zip', 'address', 'phone', 'fax', 'email', 'ssn', 'mrn', 'account']
+    strings_to_flag = ['date', 'time', 'dt', 'dttm', 'zip', 'address', 'phone', 'fax', 'email', 'ssn', 'mrn', 'account', 'birth']
+
+    flagged_columns = {}
+
+    for col in data_5000.columns:
+        if any(string in col for string in strings_to_flag):
+            flagged_columns[col] = 1
+    print('flagged_columns is:', flagged_columns)
+    for k,v in flagged_columns.items():
+        if v > 0:
+            # df_pred_result.loc[k, 'HIPPA'] = 1
+            df_pred_result.loc[k, 'ML prediction result'] = 1
+            df_pred_result.loc[k, 'ML prediction result 0/1'] = 1
+
+    """
+    pandas to datetime
+    """
+
+    successful_columns = {}
+    for c in df.columns:
+        # Skip columns that contain numeric values
+        if np.issubdtype(df[c].dtype, np.number):
+            print(c, 'skipped (numeric)')
+            continue
+
+        try:
+            with warnings.catch_warnings():
+                warnings.filterwarnings("error")
+                a = pd.to_datetime(df[c])
+            successful_columns[c] = 1
+            print(c, 'success')
+        except pd.errors.ParserWarning as e:
+            print(f"Warning for column '{c}': {str(e)}")
+        except:
+            print(c, 'fail')
+
+    print("Columns successfully converted without any warnings:")
+    print(successful_columns)
+
+    for k,v in successful_columns.items():
+        if v > 0:
+            # df_pred_result.loc[k, 'HIPPA'] = 1
+            df_pred_result.loc[k, 'ML prediction result'] = 1
+            df_pred_result.loc[k, 'ML prediction result 0/1'] = 1
+
     return df_pred_result
+
+
+
 
 # %%
 
