@@ -8,7 +8,7 @@ This document explains how to run the Privacy Scan Tool using Docker, including 
 To run the Privacy Scan Tool Docker container, use the following command:
 
 ```bash
-docker run -v $(pwd)/output:/privacy_scan_tool/output -v $(pwd)/config.json:/privacy_scan_tool/config.json -v $(pwd)/data_folder:/privacy_scan_tool/data_folder ghcr.io/chorus-ai/chorus-privacy:main
+docker run --rm -v $(pwd)/output:/privacy_scan_tool/output -v $(pwd)/config.json:/privacy_scan_tool/config.json -v $(pwd)/data_folder:/privacy_scan_tool/data_folder ghcr.io/chorus-ai/chorus-privacy:main
 ```
 
 ### Explanation of the Docker Command
@@ -16,8 +16,9 @@ docker run -v $(pwd)/output:/privacy_scan_tool/output -v $(pwd)/config.json:/pri
 - `docker run`: Runs the Docker container.
 - `-v $(pwd)/output:/privacy_scan_tool/output`: Maps the local `output` directory to the container's `/privacy_scan_tool/output` directory.
 - `-v $(pwd)/config.json:/privacy_scan_tool/config.json`: Maps the local `config.json` file to the container's `/privacy_scan_tool/config.json` file.
+- `--rm`: remove the container after finishing.
 - `-v $(pwd)/data_folder:/privacy_scan_tool/data_folder`: Maps the local `data_folder` directory to the container's `/privacy_scan_tool/data_folder` directory.
-- `luyaochen/privacy_scan_tool:20240517`: Specifies the Docker image to use.
+- `ghcr.io/chorus-ai/chorus-privacy:main`: Specifies the Docker image to use.
 
 ## Creating Required Local Directories
 
