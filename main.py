@@ -49,7 +49,6 @@ class DB_Profile_Thread(QtCore.QThread):
                 profile_table_result = get_table_profile(self._source_db,item,self._sampleqty)
 
             if profile_table_result is None:            
-                self._items = [x for x in self._items if x != item] 
                 continue
 
             self.source_profile[item] = profile_table_result['data_stats']
@@ -81,6 +80,8 @@ class PHI_Scan_Thread(QtCore.QThread):
     def run(self):
         for item in self._items:
             self.log.emit('processing:  %s' % item  )
+            if not os.path.exists('./data_profile/table_{}_profile.json'.format(item)):
+                continue
             original_data_path = './data_profile/table_{}_sample.csv'.format(item)
             json_file_path = './data_profile/table_{}_profile.json'.format(item)
             model_path = PHI_SCAN_MODEL
