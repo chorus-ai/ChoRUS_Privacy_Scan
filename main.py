@@ -48,7 +48,9 @@ class DB_Profile_Thread(QtCore.QThread):
             else:                
                 profile_table_result = get_table_profile(self._source_db,item,self._sampleqty)
 
-            
+            if profile_table_result is None:            
+                self._items = [x for x in self._items if x != item] 
+                continue
 
             self.source_profile[item] = profile_table_result['data_stats']
             for x in profile_table_result['data_stats']:

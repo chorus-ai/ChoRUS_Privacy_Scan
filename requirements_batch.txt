@@ -1,0 +1,11 @@
+pandas>=1.5.0
+xlwt
+psycopg2-binary
+sqlalchemy<2.0.0
+xgboost>=1.7.0
+tqdm>=4.64.0
+scikit-learn
+#nltk>=3.8.0
+#spacy>=3.5.0
+#tensorflow-cpu<=2.11
+dataprofiler==0.8.8

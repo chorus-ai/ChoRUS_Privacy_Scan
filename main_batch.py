@@ -13,7 +13,6 @@ from config import *
 from db_tools import *
 from phi_scan import phi_scan
 
-
 def main():
     global tables_to_scan
 
@@ -39,12 +38,16 @@ def main():
     source_mapping = {}
     source_profile = {}
 
+    tables_to_scan_updated = tables_to_scan
     for profile_table in tables_to_scan:
         print(profile_table)
         table_mapping = {}
         profile_table_result = get_table_profile(
             selected_db, profile_table, data_profile_sample_size, text_file_location
         )
+        if profile_table_result is None:
+            tables_to_scan_updated = [x for x in tables_to_scan_updated if x != profile_table]
+            continue
         source_profile[profile_table] = profile_table_result['data_stats']
         for column_stats in profile_table_result['data_stats']:
             if column_stats['categorical']:
@@ -55,6 +58,7 @@ def main():
                 table_mapping[column_stats['column_name']] = []
         source_mapping[profile_table] = table_mapping
 
+    tables_to_scan = tables_to_scan_updated
     #print(json.dumps(source_mapping, indent=4))
     #print(json.dumps(source_profile, indent=4))
 
@@ -157,6 +161,12 @@ def main():
 
     wbk.save(result_file_path)
     print("step 4 : Save PHI SCAN Result - Done",result_file_path )
+
+    if len(warning) > 0:
+        with open(log_file_path, "w") as f:
+            for w in warning:
+                f.write(w + "\n")
+
 if __name__ == "__main__":
     main()
 

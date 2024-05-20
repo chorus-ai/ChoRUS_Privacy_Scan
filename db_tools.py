@@ -7,6 +7,8 @@ import numpy
 
 from config import *
 
+warning = []
+
 def read_source_data(db_name,sql_text):
     #print(sql_text)
     db_eng = create_engine(available_dbs[db_name][0]) 
@@ -122,10 +124,11 @@ def get_table_cols (db_name,table_name):
 
 def get_table_profile (db_name,table_name,samplesize,text_folder=None):
  
-    print(db_name,table_name,samplesize,text_folder)
+    print('getting profile -- ', db_name,table_name,samplesize,text_folder)
+ 
+    global warning
 
     import dataprofiler as dp
-
 
     profile_options = dp.ProfilerOptions()
     profile_options.structured_options.text.is_enabled = False
@@ -148,16 +151,24 @@ def get_table_profile (db_name,table_name,samplesize,text_folder=None):
 
     print(profile_df.shape)
 
-    profile_df.to_csv('./data_profile/table_{}_sample.csv'.format(table_name),index=False)
-    
-    profile = dp.Profiler(profile_df,samples_per_update = samplesize,min_true_samples=samplesize,options= profile_options)
-    report = profile.report(report_options={"output_format":"pretty"})
 
-    with open('./data_profile/table_{}_profile.json'.format(table_name), 'w') as f:
-        json.dump(report, f)
+    if len(profile_df) == 0:
+        warning.append(f'No data found in the table {table_name}')
+        return None 
+    else:
+        if len(profile_df) <1000:
+            warning.append(f'Data size is too small ( {len(profile_df)}) for {table_name} to generate profile, the final result may not be accurate.')
 
-    return  report
-                          
+        profile_df.to_csv('./data_profile/table_{}_sample.csv'.format(table_name),index=False)
+        
+        profile = dp.Profiler(profile_df,samples_per_update = samplesize,min_true_samples=samplesize,options= profile_options)
+        report = profile.report(report_options={"output_format":"pretty"})
+
+        with open('./data_profile/table_{}_profile.json'.format(table_name), 'w') as f:
+            json.dump(report, f)
+
+        return  report
+                            
 
 
 # print (get_tables ('PSQL_MIMIC'))
