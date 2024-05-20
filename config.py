@@ -33,6 +33,7 @@ tables_to_scan  = config.get('tables_to_scan', [])
 output_folder = config.get('output_folder', '.')
 result_file = config.get('result_file', 'phi_scan_result.xls')
 result_file_path = os.path.join(output_folder, result_file)
+log_file_path = os.path.join(output_folder, 'warning.log')
 
 target_models = config.get('target_models', {})
 dest_db = config.get('dest_db', '')  # default to an empty string if not specified

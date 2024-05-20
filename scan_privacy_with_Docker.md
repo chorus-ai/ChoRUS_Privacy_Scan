@@ -123,5 +123,6 @@ Ensure you replace `postgresql://userid:password@192.168.0.100:5432/mimic` with 
 4. Place any required data files in the `data_folder` directory.
 5. Execute the Docker run command provided above.
 6. The tool will process the data according to the configuration and output the results to the specified `output` directory.
+7. If the table has no or less than 1000 records. A warning message will be put into the output folder as well. 
 
 By following these steps, you can successfully run the Privacy Scan Tool using Docker with the appropriate configuration.
