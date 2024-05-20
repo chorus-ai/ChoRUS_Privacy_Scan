@@ -8,7 +8,7 @@ This document explains how to run the Privacy Scan Tool using Docker, including 
 To run the Privacy Scan Tool Docker container, use the following command:
 
 ```bash
-docker run -v $(pwd)/output:/privacy_scan_tool/output -v $(pwd)/config.json:/privacy_scan_tool/config.json -v $(pwd)/data_folder:/privacy_scan_tool/data_folder luyaochen/privacy_scan_tool:20240517
+docker run -v $(pwd)/output:/privacy_scan_tool/output -v $(pwd)/config.json:/privacy_scan_tool/config.json -v $(pwd)/data_folder:/privacy_scan_tool/data_folder ghcr.io/chorus-ai/chorus-privacy:main
 ```
 
 ### Explanation of the Docker Command
