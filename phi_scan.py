@@ -130,11 +130,6 @@ def main(model, df, df_json):
     assert X.shape[1] == 90
 
 
-
-    # create HIPPA label
-    # X['HIPPA'] = 0
-    # X[X.index.isin(HIPPA)] = 1
-    #
     # change object to float
     for i in X.columns:
         X[i] = pd.to_numeric(X[i],errors='coerce')
@@ -161,7 +156,7 @@ def main(model, df, df_json):
 
     # predict_01 = print_metrics(df_pred_result['HIPPA'], df_pred_result['ML prediction result'])
 
-    df_pred_result['ML prediction result 0/1'] = df_pred_result['ML prediction result'].apply(lambda x: int(x >= 0.994889))
+    df_pred_result['ML prediction result 0/1'] = df_pred_result['ML prediction result'].apply(lambda x: int(x >= 0.537585))
 
     # df_pred_result['ML prediction result 0/1'] = predict_01
     
